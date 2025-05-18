@@ -1,10 +1,13 @@
+import pandas as pd
 import yfinance as yf
 import pandas_datareader.data as web
 
 class MacroDataGetter:
-    def __init__(self, start_date, end_date):
-        self.start_date = start_date
-        self.end_date = end_date
+    def __init__(self, config):
+        self.config = config
+        self.start_date = config.config['start_date']
+        self.end_date = config.config['end_date']
+        self.commodities_dict = config.config['commodities']
 
     def fetch_all_data(self):
         self.fed_rates()
@@ -13,8 +16,16 @@ class MacroDataGetter:
         self.us_cpi()
         self.treasury_yields()
         self.treasury_bonds()
-        self.commodities()
-        self.sp500()
+        self.commodities_data()
+        
+    def merge_macro(self):
+        self.macro_data = self.fed_rates.join(
+            self.us_gdp, how='left').join(
+            self.us_unemp, how='left').join(
+            self.eu_unemp, how='left').join(
+            self.us_cpi, how='left')
+        self.treasury_yields = self.treasury_2y.join(
+            self.treasury_10y, how='left')
     
     def fed_rates(self):
         # Monthly interest rates
@@ -68,12 +79,19 @@ class MacroDataGetter:
         ).rename(
             columns={'TLT': 'treasury_bonds'}
         )
-    def commodities(self):
+    def commodities_data(self):
         # Daily commodities
-        self.gold = yf.download('GC=F', start=self.start_date, end=self.end_date)  # Gold futures
-        self.silver = yf.download('SI=F', start=self.start_date, end=self.end_date)  # Silver futures
-        self.copper = yf.download('HG=F', start=self.start_date, end=self.end_date)  # Copper futures
-        self.oil = yf.download('CL=F', start=self.start_date, end=self.end_date) # WTI Crude futures
-
-    def sp500(self):
-        self.sp500 = yf.download("^GSPC", start=self.start_date, end=self.end_date, interval="1d")
+        self.commodities_df = pd.DataFrame()
+        for name, ticker in self.commodities_dict.items():
+            try:
+                # Download data using yfinance
+                commodity_df = yf.download(ticker, start=self.start_date, end=self.end_date, interval="1d")
+                if not commodity_df.empty:
+                    commodity_df.columns = [x.lower() for x in commodity_df.columns.get_level_values(0)]
+                    commodity_df['commodity'] = name
+                    self.commodities_df = pd.concat([self.commodities_df, commodity_df], axis=0)
+                    print(f"Successfully fetched data for {name}")
+                else:
+                    print(f"No data returned for {name}")
+            except Exception as e:
+                print(f"Error fetching data for {name}: {e}")

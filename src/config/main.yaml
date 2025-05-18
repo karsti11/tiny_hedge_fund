@@ -1,0 +1,26 @@
+crypto_symbols_correction:
+  'HYPE': 'HYPE32196'
+  'UNI': 'UNI1'
+  'TRUMP': 'TRUMP-OFFICIAL'
+  'SUI': 'SUI20947'
+  'APT': 'APT21794'
+stocks:
+  indexes:
+    's_p_500': '^GSPC'
+    'nasdaq': '^IXIC' 
+    'dow_jones': '^DJI' 
+    'ftse_100': '^FTSE'
+    'dax': '^GDAXI' 
+    'cac_40': '^FCHI'
+    'nikkei_225': '^N225'
+    'shanghai_composite': '^SSEC'
+    'moex_russia': '^IMOEX' 
+    's_p_tsx_composite': '^GSPTSE'
+    'bse_sensex': '^BSESN'
+    'asx_200': '^AXJO'
+commodities:
+  'gold': 'GC=F'
+  'silver': 'SI=F'
+  'copper': 'HG=F'
+  'oil': 'CL=F'
+  'natural_gas': 'NG=F'
